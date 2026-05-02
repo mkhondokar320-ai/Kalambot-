@@ -34,7 +34,7 @@ FETCH_RECORDS = 50
 FORCE_JOIN_CHANNELS = [
     {"name": "🌟 𝑴𝒂𝒊𝒏 𝑪𝒉𝒂𝒏𝒏𝒆𝒍", "url": "https://t.me/Minhaz_Official", "chat_id": "@Minhaz_Official"},
     {"name": "💬 𝑶𝑻𝑷 𝑮𝒓𝒐𝒖𝒑", "url": "https://t.me/kalamifxvvv223", "chat_id": "@kalamifxvvv223"},
-    {"name": "🛡️ 𝑩𝒂𝒄𝒌𝒖𝒑 𝑪𝒉𝒂𝒏𝒏𝒆𝒍", "url": "https://t.me/becup3290", "chat_id":@becup3290} 
+    {"name": "🛡️ 𝑩𝒂𝒄𝒌𝒖𝒑 𝑪𝒉𝒂𝒏𝒏𝒆𝒍", "url": "https://t.me/becup3290", "chat_id":"@becup3290"} 
 ]
 
 bot = telebot.TeleBot(API_TOKEN, parse_mode='HTML')

@@ -15,7 +15,7 @@ import threading
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - 𝐈𝐍𝐒 𝐇𝐔𝐁𝐄 - %(levelname)s - %(message)s')
 
 # Telegram Bot Token & Admin
-API_TOKEN = '8364756844:AAFGuS6NTl7MzSJt3TjuD4OoMSTXO4KFjYYI'
+API_TOKEN = '8364756844:AAFGuS6NTl7MzSJt3TjuD4OoMSTXO4KFjYY'
 MAIN_ADMIN_ID = 7087989353
 
 # ================= 🚀 DUAL API CONFIGURATION =================

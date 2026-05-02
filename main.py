@@ -434,7 +434,7 @@ def wallet_system(message):
 def support_system(message):
     if not check_ban_and_maintenance(message): return
     markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("👨‍💻 𝑪𝒐𝒏𝒕𝒂𝒄𝒕 𝑨𝒅𝒎𝒊𝒏", url="https://t.me/Minhaz_Official"))
+    markup.add(types.InlineKeyboardButton("👨‍💻 𝑪𝒐𝒏𝒕𝒂𝒄𝒕 𝑨𝒅𝒎𝒊𝒏", url="https://t.me/Sanra03263"))
     bot.send_message(message.chat.id, "🎧 <b>𝑰𝑵𝑺 𝑯𝑼𝑩𝑬 𝑺𝒖𝒑𝒑𝒐𝒓𝒕</b>\n━━━━━━━━━━━━━━━━━━━━\nযেকোনো প্রয়োজনে সরাসরি ইনবক্সে মেসেজ দিন:", reply_markup=markup)
 
 @bot.message_handler(func=lambda m: m.text and "𝑨𝒅𝒎𝒊𝒏" in m.text)

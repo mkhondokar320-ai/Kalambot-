@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - 𝐈𝐍𝐒 𝐇�
 
 # Telegram Bot Token & Admin
 API_TOKEN = '8364756844:AAFGuS6NTl7MzSJt3TjuD4OoMSTXO4KFjYY'
-MAIN_ADMIN_ID = 7087989353
+MAIN_ADMIN_ID = 7087989353,7689218221
 
 # ================= 🚀 DUAL API CONFIGURATION =================
 # API 1

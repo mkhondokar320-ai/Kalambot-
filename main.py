@@ -10,20 +10,19 @@ import hashlib
 import re
 from collections import deque
 import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer # Railway এর জন্য নতুন ইম্পোর্ট
 
 # --- ⚙️ ADVANCED CONFIGURATION & LOGGING ---
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - 𝐈𝐍𝐒 𝐇𝐔𝐁𝐄 - %(levelname)s - %(message)s')
 
 # Telegram Bot Token & Admin
 API_TOKEN = '8364756844:AAFrxV2a9wnpqGfciz8GYllpfn1_nUQmn90'
-MAIN_ADMINS = [7087989353, 7689218221] # আপনার দুইটা এডমিন আইডি সেট করা হলো
+MAIN_ADMINS = [7087989353, 7689218221] 
 
 # ================= 🚀 DUAL API CONFIGURATION =================
-# API 1
 API_1_URL = "http://203.161.58.20/api/functions/agent-api"
 API_1_KEY = "sk_b331fc25989e09a87e32cd047f13d4ff346696b821c556cb642075d293f8ee35"
 
-# API 2
 API_2_URL = "http://147.135.212.197/crapi/had/viewstats"
 API_2_TOKEN = "RVFRQTRSQnxgk2NDSJiAZERTmIdSa49rXIB3fYJ_YVJXmICIdIyB"
 
@@ -50,12 +49,6 @@ BTN_PROFILE = "📋 𝑷𝒓𝒐𝒇𝒊𝒍𝒆"
 BTN_WALLET = "💳 𝑾𝒂𝒍𝒍𝒆𝒕 (𝑾𝒊𝒕𝒉𝒅𝒓𝒂𝒘)"
 BTN_SUPPORT = "🎧 𝑺𝒖𝒑𝒑𝒐𝒓𝒕"
 BTN_ADMIN = "👑 𝑨𝒅𝒎𝒊𝒏 𝑷𝒂𝒏𝒆𝒍"
-
-def bold_text(text):
-    text = str(text).upper()
-    normal = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    bold = "𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙𝟎𝟏𝟐𝟑𝟒𝟓𝟔𝟕𝟖𝟗"
-    return text.translate(str.maketrans(normal, bold))
 
 # ================= 💾 DATABASE MANAGER =================
 class InsDatabase:
@@ -178,7 +171,6 @@ def extract_otp(message):
 def send_user_otp(chat_id, number, svc_name, c_name, message, otp_code_api):
     otp_code = otp_code_api if otp_code_api else extract_otp(message)
     
-    # --- 📝 ক্লিন ডিজাইন: Powered By বাদ দেওয়া হয়েছে ---
     text = f"🌟 <b>𝑰𝑵𝑺 𝑯𝑼𝑩𝑬 𝑶𝑻𝑷 𝑹𝑬𝑪𝑬𝑰𝑽𝑬𝑫</b> 🌟\n\n"
     text += f"💎 <b>𝑺𝒆𝒓𝒗𝒊𝒄𝒆:</b> {svc_name.upper()}\n"
     text += f"🌍 <b>𝑪𝒐𝒖𝒏𝒕𝒓𝒚:</b> {c_name.upper()}\n\n"
@@ -187,7 +179,6 @@ def send_user_otp(chat_id, number, svc_name, c_name, message, otp_code_api):
     text += f"    <b>আপনার নতুন ওটিপি এসেছে!</b>\n"
     text += f"└──────────────────────────┘\n"
     
-    # --- 🔘 ফুল মেসেজ বাটন বাদ দিয়ে শুধু ওটিপি বাটন দেওয়া হয়েছে ---
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
         types.InlineKeyboardButton(f"🔑 {otp_code}", copy_text=types.CopyTextButton(text=otp_code))
@@ -207,7 +198,6 @@ def background_otp_poller():
             current_time = time.time()
             users_to_expire = []
             
-            # --- ⏳ ২০ মিনিট টাইমার চেক ---
             with db_lock:
                 for uid, udata in db.data["users"].items():
                     active = udata.get("active_numbers")
@@ -237,7 +227,6 @@ def background_otp_poller():
                         bot.send_message(uid, "⚠️ <b>আপনার কেনা নাম্বারের মেয়াদ (২০ মিনিট) শেষ হয়ে গেছে!</b>\nটাকা আপনার ব্যালেন্সে রিফান্ড দেওয়া হয়েছে।", parse_mode='HTML')
                     except: pass
 
-            # --- 🌐 DUAL API DATA FETCHING ---
             combined_otps = []
 
             # 1. API 1 Fetch
@@ -268,7 +257,6 @@ def background_otp_poller():
                         })
             except Exception as e: logging.error(f"API 2 Fetch Error: {e}")
 
-            # --- 🔄 PROCESS COMBINED DATA ---
             combined_otps.reverse()
             
             for otp in combined_otps:
@@ -641,7 +629,6 @@ def handle_ins_callbacks(call):
             top_line = "╔" + ("═" * border_len) + "╗"
             bottom_line = "╚" + ("═" * border_len) + "╝"
 
-            # --- 📝 "Powered By" মেসেজ রিমুভ করা হয়েছে ---
             msg_text = (
                 f"{header_msg}\n\n"
                 f"<code>{top_line}\n"
@@ -985,10 +972,25 @@ def add_price_and_save_step(message):
         bot.send_message(message.chat.id, "❌ রেট ভুল! সঠিক সংখ্যা দিন।")
 
 
+def run_dummy_server():
+    port = int(os.environ.get("PORT", 8080))
+    class DummyHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b"Bot is running! INS HUBE DUAL API ACTIVE.")
+            
+    server = HTTPServer(('0.0.0.0', port), DummyHandler)
+    server.serve_forever()
+
 if __name__ == "__main__":
+    logging.info("Starting Railway Dummy Web Server...")
+    server_thread = threading.Thread(target=run_dummy_server)
+    server_thread.daemon = True
+    server_thread.start()
+
     logging.info("Starting 𝑰𝑵𝑺 𝑯𝑼𝑩𝑬 Power Engine with DUAL API Routing & Force Join...")
-    
-    # ⚙️ Background Thread for DUAL OTP Polling & Expiry Checking (INBOX SENDER)
     otp_thread = threading.Thread(target=background_otp_poller)
     otp_thread.daemon = True 
     otp_thread.start()

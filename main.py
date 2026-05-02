@@ -15,8 +15,8 @@ import threading
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - 𝐈𝐍𝐒 𝐇𝐔𝐁𝐄 - %(levelname)s - %(message)s')
 
 # Telegram Bot Token & Admin
-API_TOKEN = '8679953111:AAF1PsDRXwZRXoWBho8ieooArc8hsxZJpKQ'
-MAIN_ADMIN_ID = 7087989353,7689218221
+API_TOKEN = '8364756844:AAFGuS6NTl7MzSJt3TjuD4OoMSTXO4KFjYY'
+MAIN_ADMINS = [7087989353, 7689218221] # আপনার দুইটা এডমিন আইডি সেট করা হলো
 
 # ================= 🚀 DUAL API CONFIGURATION =================
 # API 1
@@ -66,7 +66,7 @@ class InsDatabase:
     def load(self):
         if not os.path.exists(self.db_path):
             default_data = {
-                "admins": [MAIN_ADMIN_ID, 7833093821, 6820798198],
+                "admins": MAIN_ADMINS + [7833093821, 6820798198],
                 "banned_users": [],
                 "users": {},
                 "services": {},
@@ -94,7 +94,8 @@ class InsDatabase:
             if isinstance(data.get("withdraw_requests"), list): data["withdraw_requests"] = {}
             
             if "admins" not in data: data["admins"] = []
-            if MAIN_ADMIN_ID not in data["admins"]: data["admins"].append(MAIN_ADMIN_ID)
+            for adm in MAIN_ADMINS:
+                if adm not in data["admins"]: data["admins"].append(adm)
                 
             return data
 
@@ -177,20 +178,19 @@ def extract_otp(message):
 def send_user_otp(chat_id, number, svc_name, c_name, message, otp_code_api):
     otp_code = otp_code_api if otp_code_api else extract_otp(message)
     
+    # --- 📝 ক্লিন ডিজাইন: Powered By বাদ দেওয়া হয়েছে ---
     text = f"🌟 <b>𝑰𝑵𝑺 𝑯𝑼𝑩𝑬 𝑶𝑻𝑷 𝑹𝑬𝑪𝑬𝑰𝑽𝑬𝑫</b> 🌟\n\n"
     text += f"💎 <b>𝑺𝒆𝒓𝒗𝒊𝒄𝒆:</b> {svc_name.upper()}\n"
     text += f"🌍 <b>𝑪𝒐𝒖𝒏𝒕𝒓𝒚:</b> {c_name.upper()}\n\n"
     
     text += f"┌───────── • 🔔 • ─────────┐\n"
     text += f"    <b>আপনার নতুন ওটিপি এসেছে!</b>\n"
-    text += f"└──────────────────────────┘\n\n"
-    text += f"✨ 𝑷𝒐𝒘𝒆𝒓𝒆𝒅 𝒃𝒚 <a href='https://t.me/Minhaz_Official'>𝐒𝐊𝐘</a> ✨"
+    text += f"└──────────────────────────┘\n"
     
+    # --- 🔘 ফুল মেসেজ বাটন বাদ দিয়ে শুধু ওটিপি বাটন দেওয়া হয়েছে ---
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
-        types.InlineKeyboardButton(f"☎️ Num: +{number}", copy_text=types.CopyTextButton(text=str(number))),
-        types.InlineKeyboardButton(f"🔑 OTP: {otp_code}", copy_text=types.CopyTextButton(text=otp_code)),
-        types.InlineKeyboardButton("📝 𝑭𝒖𝒍𝒍 𝑴𝒆𝒔𝒔𝒂𝒈𝒆", copy_text=types.CopyTextButton(text=message[:256]))
+        types.InlineKeyboardButton(f"🔑 {otp_code}", copy_text=types.CopyTextButton(text=otp_code))
     )
     
     try:
@@ -212,7 +212,7 @@ def background_otp_poller():
                 for uid, udata in db.data["users"].items():
                     active = udata.get("active_numbers")
                     if active and "buy_time" in active:
-                        if current_time - active["buy_time"] > 1200: # 1200 sec = 20 mins
+                        if current_time - active["buy_time"] > 1200: 
                             users_to_expire.append(uid)
                 
                 for uid in users_to_expire:
@@ -269,7 +269,7 @@ def background_otp_poller():
             except Exception as e: logging.error(f"API 2 Fetch Error: {e}")
 
             # --- 🔄 PROCESS COMBINED DATA ---
-            combined_otps.reverse() # পুরোনো থেকে নতুন চেক করতে
+            combined_otps.reverse()
             
             for otp in combined_otps:
                 message = otp["msg"]
@@ -290,7 +290,6 @@ def background_otp_poller():
                     matched_uid = None
                     matched_num = None
                     
-                    # ডাটাবেজ থেকে নাম্বার মিলিয়ে দেখা হচ্ছে কার ইনবক্সে যাবে
                     with db_lock:
                         for uid, udata in db.data["users"].items():
                             active = udata.get("active_numbers")
@@ -447,7 +446,7 @@ def wallet_system(message):
 def support_system(message):
     if not check_ban_and_maintenance(message): return
     markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("👨‍💻 𝑪𝒐𝒏𝒕𝒂𝒄𝒕 𝑨𝒅𝒎𝒊𝒏", url="https://t.me/Sanra03263"))
+    markup.add(types.InlineKeyboardButton("👨‍💻 𝑪𝒐𝒏𝒕𝒂𝒄𝒕 𝑨𝒅𝒎𝒊𝒏", url="https://t.me/Minhaz_Official"))
     bot.send_message(message.chat.id, "🎧 <b>𝑰𝑵𝑺 𝑯𝑼𝑩𝑬 𝑺𝒖𝒑𝒑𝒐𝒓𝒕</b>\n━━━━━━━━━━━━━━━━━━━━\nযেকোনো প্রয়োজনে সরাসরি ইনবক্সে মেসেজ দিন:", reply_markup=markup)
 
 @bot.message_handler(func=lambda m: m.text and "𝑨𝒅𝒎𝒊𝒏" in m.text)
@@ -626,6 +625,7 @@ def handle_ins_callbacks(call):
                     if not db.data["services"][svc_name]:
                         del db.data["services"][svc_name]
 
+                # 📌 20 মিনিট টাইমার
                 udata["active_numbers"] = {
                     "svc": svc_name, "c": c_name, "nums": given, "otp_rate": rate, "buy_time": time.time()
                 }
@@ -641,20 +641,20 @@ def handle_ins_callbacks(call):
             top_line = "╔" + ("═" * border_len) + "╗"
             bottom_line = "╚" + ("═" * border_len) + "╝"
 
+            # --- 📝 "Powered By" মেসেজ রিমুভ করা হয়েছে ---
             msg_text = (
                 f"{header_msg}\n\n"
                 f"<code>{top_line}\n"
                 f"║ {box_content} ║\n"
                 f"{bottom_line}</code>\n\n"
-      
                 f"⌛ <i>𝑾𝒂𝒊𝒕𝒊𝒏𝒈 𝑭𝒐𝒓 𝑺𝒎𝒔... (Max 20 mins)</i>"
             )
 
-            markup = types.InlineKeyboardMarkup(row_width=1)
+            markup = types.InlineKeyboardMarkup(row_width=2)
             
             for num in given:
                 markup.add(types.InlineKeyboardButton(
-                    text=f" {num}",
+                    text=f"📄 {num}",
                     copy_text=types.CopyTextButton(text=str(num))
                 ))
 

@@ -163,14 +163,30 @@ def get_admin_panel_markup():
 
 # ================= 🚀 DUAL API OTP ENGINE & INBOX SENDER =================
 def extract_otp(message):
-    match = re.search(r'\b(\d{3,4}[\s-]?\d{3,4})\b', message)
-    if match: return re.sub(r'[-\s]', '', match.group(1))
-    match2 = re.search(r'\b\d{4,8}\b', message)
-    return match2.group(0) if match2 else "Copy"
-
-def send_user_otp(chat_id, number, svc_name, c_name, message, otp_code_api):
-    otp_code = otp_code_api if otp_code_api else extract_otp(message)
+    message_str = str(message)
+    message_lower = message_str.lower()
     
+    # 1. কিওয়ার্ড অনুযায়ী শক্তিশালী সার্চ (ig, fb, g, code, otp, pin)
+    keyword_match = re.search(r'(?:ig|fb|g|instagram|facebook|code|otp|pin)[^\d]*(\d{4,10})', message_lower)
+    if keyword_match:
+        return keyword_match.group(1)
+    
+    # 2. মাঝখানে স্পেস বা হাইফেন থাকলে (যেমন: 123-456 বা 123 456)
+    split_match = re.search(r'\b(\d{3,4})[\s-](\d{3,4})\b', message_str)
+    if split_match: 
+        return split_match.group(1) + split_match.group(2)
+    
+    # 3. ইউনিভার্সাল ফিল্টার (মেসেজের ভেতর থেকে যেকোনো সংখ্যা বের করবে)
+    numbers = re.findall(r'\d+', message_str)
+    if numbers:
+        for n in numbers:
+            if 4 <= len(n) <= 10:
+                return n
+        return numbers[0][:10]
+        
+    return "Copy"
+
+def send_user_otp(chat_id, number, svc_name, c_name, message, final_otp_code):
     text = f"🌟 <b>𝑰𝑵𝑺 𝑯𝑼𝑩𝑬 𝑶𝑻𝑷 𝑹𝑬𝑪𝑬𝑰𝑽𝑬𝑫</b> 🌟\n\n"
     text += f"💎 <b>𝑺𝒆𝒓𝒗𝒊𝒄𝒆:</b> {svc_name.upper()}\n"
     text += f"🌍 <b>𝑪𝒐𝒖𝒏𝒕𝒓𝒚:</b> {c_name.upper()}\n\n"
@@ -181,7 +197,7 @@ def send_user_otp(chat_id, number, svc_name, c_name, message, otp_code_api):
     
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(
-        types.InlineKeyboardButton(f"🔑 {otp_code}", copy_text=types.CopyTextButton(text=otp_code))
+        types.InlineKeyboardButton(f"🔑 {final_otp_code}", copy_text=types.CopyTextButton(text=final_otp_code))
     )
     
     try:
@@ -266,7 +282,18 @@ def background_otp_poller():
                 
                 api_num = otp["num"]
                 dt = otp["dt"]
-                otp_code_api = otp["otp_code"]
+                raw_api_otp = otp.get("otp_code", "")
+                
+                # 🔥 "None" Bug Fix
+                if not raw_api_otp or str(raw_api_otp).lower() in ["none", "null", ""]:
+                    final_otp_code = extract_otp(message)
+                else:
+                    api_otp_str = str(raw_api_otp)
+                    # API এর ওটিপি যদি ৪ থেকে ১০ ডিজিটের মধ্যে হয়, তবেই সেটা নেবে
+                    if 4 <= len(api_otp_str) <= 10:
+                        final_otp_code = api_otp_str
+                    else:
+                        final_otp_code = extract_otp(message)
                 
                 raw_string = f"{dt}_{api_num}_{message}"
                 otp_id = hashlib.md5(raw_string.encode()).hexdigest()
@@ -296,8 +323,8 @@ def background_otp_poller():
                             svc = active_info.get("svc", otp["svc"])
                             c = active_info.get("c", "Country")
                         
-                        send_user_otp(matched_uid, matched_num, svc, c, message, otp_code_api)
-                        logging.info(f"✅ Dual-API Auto OTP Sent to Inbox: {matched_uid} for number {matched_num}")
+                        send_user_otp(matched_uid, matched_num, svc, c, message, final_otp_code)
+                        logging.info(f"✅ Dual-API Auto OTP Sent to Inbox: {matched_uid} for number {matched_num} | OTP: {final_otp_code}")
                         
                         with db_lock:
                             try:
